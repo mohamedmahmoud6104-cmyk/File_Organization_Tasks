@@ -1,0 +1,89 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+using namespace std;
+
+// Struct to store each person's details (string name and integer age)
+struct Person {
+    string name;
+    int age;
+};
+
+int main() {
+    int count;
+    // Step 1: Ask the user how many persons to add to the file
+    cout << "Enter number of persons: ";
+    cin >> count;
+
+    if (count <= 0) {
+        cerr << "Invalid number of persons." << endl;
+        return 1;
+    }
+
+    // Open file to save persons' data as string and integer
+    ofstream outFile("persons.txt");
+    if (!outFile) {
+        cerr << "Error opening persons.txt for writing!" << endl;
+        return 1;
+    }
+
+    // Read persons' details from user and write to file
+    for (int i = 0; i < count; i++) {
+        Person p;
+        cout << "Enter name for person " << (i + 1) << ": ";
+        cin >> p.name;
+        cout << "Enter age for person " << (i + 1) << ": ";
+        cin >> p.age;
+
+        outFile << p.name << " " << p.age << endl;
+    }
+    outFile.close();
+
+    // Step 2: Load persons' data from file into a vector of Person
+    ifstream inFile("persons.txt");
+    if (!inFile) {
+        cerr << "Error opening persons.txt for reading!" << endl;
+        return 1;
+    }
+
+    vector<Person> persons;
+    Person temp;
+    while (inFile >> temp.name >> temp.age) {
+        persons.push_back(temp);
+    }
+    inFile.close();
+
+    if (persons.empty()) {
+        cerr << "No data found in file." << endl;
+        return 1;
+    }
+
+    // Find youngest and oldest persons
+    Person youngest = persons[0];
+    Person oldest = persons[0];
+
+    for (size_t i = 1; i < persons.size(); i++) {
+        if (persons[i].age < youngest.age) {
+            youngest = persons[i];
+        }
+        if (persons[i].age > oldest.age) {
+            oldest = persons[i];
+        }
+    }
+
+    // Save results to results.txt
+    ofstream resultFile("results.txt");
+    if (!resultFile) {
+        cerr << "Error opening results.txt for writing!" << endl;
+        return 1;
+    }
+
+    resultFile << "Youngest Person: " << youngest.name << " (" << youngest.age << ")" << endl;
+    resultFile << "Oldest Person: " << oldest.name << " (" << oldest.age << ")" << endl;
+    resultFile.close();
+
+    cout << "Results saved to results.txt successfully." << endl;
+
+    return 0;
+}
