@@ -1,0 +1,75 @@
+#include <iostream>
+#include <fstream>
+#include <cstdio>
+
+using namespace std;
+
+int main() {
+    ofstream outFile("grades.txt");
+    if (!outFile) {
+        cerr << "Error: Could not create grades.txt!" << endl;
+        return 1;
+    }
+
+    int initialGrades[5] = {85, 90, 78, 92, 88};
+    for (int i = 0; i < 5; i++) {
+        outFile << initialGrades[i] << endl;
+    }
+    outFile.close();
+    cout << "Successfully wrote 5 grades to grades.txt.\n" << endl;
+
+    ifstream inFile("grades.txt");
+    if (!inFile) {
+        cerr << "Error: Could not open grades.txt for reading!" << endl;
+        return 1;
+    }
+
+    cout << "Current grades in grades.txt:" << endl;
+    int grade;
+    while (inFile >> grade) {
+        cout << grade << " ";
+    }
+    cout << "\n" << endl;
+    inFile.close();
+
+    int gradeToDelete;
+    cout << "Enter the grade you want to delete: ";
+    cin >> gradeToDelete;
+
+    inFile.open("grades.txt");
+    ofstream tempFile("temp.txt");
+
+    if (!inFile || !tempFile) {
+        cerr << "Error: Could not open files for deletion process!" << endl;
+        return 1;
+    }
+
+    bool found = false;
+    while (inFile >> grade) {
+        if (grade == gradeToDelete) {
+            found = true;
+        } else {
+            tempFile << grade << endl;
+        }
+    }
+
+    inFile.close();
+    tempFile.close();
+
+    if (!found) {
+        remove("temp.txt");
+        cout << "\nError: Grade " << gradeToDelete << " was not found in the file. No changes made." << endl;
+    } else {
+        if (remove("grades.txt") != 0) {
+            cerr << "\nError: Could not delete the original grades.txt file." << endl;
+            return 1;
+        }
+        if (rename("temp.txt", "grades.txt") != 0) {
+            cerr << "\nError: Could not rename temp.txt to grades.txt." << endl;
+            return 1;
+        }
+        cout << "\nSuccess: Grade " << gradeToDelete << " has been deleted and grades.txt has been updated!" << endl;
+    }
+
+    return 0;
+}
